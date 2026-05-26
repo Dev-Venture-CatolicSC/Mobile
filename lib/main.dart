@@ -1,9 +1,19 @@
 import 'package:dev_venture/theme/dark_theme.dart';
 import 'package:dev_venture/theme/light_theme.dart';
 import 'package:dev_venture/screens/theme_demo.dart';
+import 'package:dev_venture/services/firestore_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirestoreService.initialize();
+
   runApp(const MyApp());
 }
 
@@ -61,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('You have pushed the button this many times:'),
             Text(
