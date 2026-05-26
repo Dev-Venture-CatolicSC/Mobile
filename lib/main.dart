@@ -1,24 +1,26 @@
+import 'package:dev_venture/bootstrap/firebase_bootstrap.dart';
+import 'package:dev_venture/screens/atomic_operations_demo.dart';
+import 'package:dev_venture/screens/theme_demo.dart';
 import 'package:dev_venture/theme/dark_theme.dart';
 import 'package:dev_venture/theme/light_theme.dart';
-import 'package:dev_venture/screens/theme_demo.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  await initializeFirebase();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Dev Venture',
       theme: AppLightTheme.theme,
       darkTheme: AppDarkTheme.theme,
       themeMode: ThemeMode.system,
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Dev Venture'),
     );
   }
 }
@@ -49,6 +51,17 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: [
           IconButton(
+            tooltip: 'Operações atômicas (G4-N2-04)',
+            icon: const Icon(Icons.sync_lock),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const AtomicOperationsDemoPage(),
+                ),
+              );
+            },
+          ),
+          IconButton(
             tooltip: 'Open theme demo',
             icon: const Icon(Icons.palette),
             onPressed: () {
@@ -61,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('You have pushed the button this many times:'),
             Text(
