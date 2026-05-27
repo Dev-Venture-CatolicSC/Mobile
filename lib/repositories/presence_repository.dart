@@ -7,9 +7,13 @@ class PresenceRepository {
 
   /// Tenta validar a senha informada e registrar a presença.
   /// Retorna um Future<void> que completa com sucesso ou lança erro.
-  Future<void> registrarPresencaNaAula(String code) async {
-    // Aqui poderiam entrar lógicas adicionais, como Analytics
-    // ou processamento local antes de enviar ao serviço.
-    await _presenceService.validarSenhaERegistrarPresenca(code);
+  Future<void> registrarPresencaNaAula({
+    required String aulaId,
+    required String code,
+  }) async {
+    await _presenceService.validarSenhaERegistrarPresenca(
+      aulaId: aulaId,
+      code: code,
+    );
   }
 }
