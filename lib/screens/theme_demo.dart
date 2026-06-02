@@ -1,3 +1,12 @@
+import 'package:dev_venture/components/drag_drop/draggable_block.dart';
+import 'package:dev_venture/components/drag_drop/drop_target_zone.dart';
+import 'package:dev_venture/components/input_text.dart';
+import 'package:dev_venture/components/metric_tile_component.dart';
+import 'package:dev_venture/components/multi_selection.dart';
+import 'package:dev_venture/components/selection_unica.dart';
+import 'package:dev_venture/components/text_field.dart';
+import 'package:dev_venture/components/true_false_question.dart';
+import 'package:dev_venture/components/venture_timer.dart';
 import 'package:flutter/material.dart';
 
 class ThemeDemoPage extends StatefulWidget {
@@ -8,6 +17,35 @@ class ThemeDemoPage extends StatefulWidget {
 }
 
 class _ThemeDemoPageState extends State<ThemeDemoPage> {
+  final _customTextFieldController = TextEditingController();
+  final _customInputTextController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  void _handleOnFormSubmit() {
+    if (_formKey.currentState!.validate()) {
+      print("Valor do Textfield custom: ${_customTextFieldController.text}");
+      print("Valor do inputText custom: ${_customInputTextController.text}");
+    }
+  }
+
+  void _handleOnMultiSelectChange(List<String> selections) {
+    for (String str in selections) {
+      print("Selected: $str");
+    }
+  }
+
+  int _score = 0;
+  int _attempts = 0;
+
+  void _onAnswered(bool isCorrect) {
+    setState(() {
+      _attempts++;
+      if (isCorrect) {
+        _score++;
+      }
+    });
+  }
+
   bool _switchValue = true;
   bool _checkboxValue = false;
   int _radioValue = 0;
@@ -47,7 +85,7 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _handleOnFormSubmit,
                     child: const Text('Elevated'),
                   ),
                   SizedBox(width: 8),
@@ -80,16 +118,123 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
               ),
 
               SizedBox(height: 16),
-              const Text('Form inputs'),
-              SizedBox(height: 8),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'TextField',
-                  hintText: 'Placeholder',
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const Text('Form inputs'),
+                    SizedBox(height: 8),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'TextField',
+                        hintText: 'Placeholder',
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    CustomTextField(
+                      hintText: "Custom Text Field",
+                      labelText: "Custom Header",
+                      controller: _customTextFieldController,
+                    ),
+                    SizedBox(height: 12),
+                    CustomInputText(
+                      label: "Custom Input Text",
+                      controller: _customInputTextController,
+                      hintText: "This is hint Text",
+                      isPassword: true,
+                      validator: (str) {
+                        print("Str: $str");
+                        return "Que retorno é esse";
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    //Exemplo de uso de componente próprio
+                    VentureTimer(
+                      initialSeconds: 20,
+                      onFinished: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const AlertDialog(
+                              title: Text("Timer Has Finished"),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12),
+              MultiSelection(
+                labels: [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3",
+                  "Item 4",
+                  "Item 5",
+                  "Item 6",
+                  "Item 7",
+                  "Item 8",
+                  "Item 9",
+                ],
+                onChange: _handleOnMultiSelectChange,
+              ),
+              SelectionUnica(
+                options: ["opcção 1", "opcção 2", "opcção 3"],
+                onChanged: (value) {},
+              ),
+
+              DraggableBlock(
+                label: "Bloco de Teste 1",
+                color: Color(0xFF6200EE),
+              ),
+              DropTargetZone(
+                onAccept: (data) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Você soltou o: $data')),
+                  );
+                },
+              ),
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                MetricTile(
+                                  label: 'Acertos',
+                                  value: _score.toString(),
+                                  accent: theme.colorScheme.primary,
+                                ),
+                                MetricTile(
+                                  label: 'Tentativas',
+                                  value: _attempts.toString(),
+                                  accent: theme.colorScheme.secondary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      TrueFalseQuestion(
+                        question: 'Flutter é um framework criado pelo Google?',
+                        correctAnswer: true,
+                        onAnswered: _onAnswered,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              SizedBox(height: 12),
               SwitchListTile(
                 title: const Text('Switch'),
                 value: _switchValue,

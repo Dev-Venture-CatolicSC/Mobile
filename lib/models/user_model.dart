@@ -1,0 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
+class UserModel {
+  final String id;
+  final String nome;
+  final String email;
+  final DateTime criadoEm;
+
+  UserModel({
+    required this.id,
+    required this.nome,
+    required this.email,
+    required this.criadoEm,
+  });
+
+  factory UserModel.fromFirebaseUser(User user) {
+    return UserModel(
+      id: user.uid,
+      nome: user.displayName ?? '',
+      email: user.email ?? '',
+      criadoEm: user.metadata.creationTime ?? DateTime.now(),
+    );
+  }
+}

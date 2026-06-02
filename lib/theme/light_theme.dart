@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dev_venture/theme/base_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Light theme (UI-REF-2026-001)
 /// - primary: brandDark for contrast
@@ -10,6 +11,9 @@ abstract class AppLightTheme {
     colorScheme: _colorScheme,
     scaffoldBackgroundColor: AppThemeTokens.surface50,
     canvasColor: AppThemeTokens.surface50,
+    textTheme: GoogleFonts.firaCodeTextTheme(
+      ThemeData(brightness: Brightness.light).textTheme,
+    ),
     appBarTheme: _appBarTheme,
     cardTheme: _cardTheme,
     dialogTheme: _dialogTheme,
