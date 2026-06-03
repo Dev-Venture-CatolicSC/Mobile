@@ -15,21 +15,21 @@ class _DropTargetZoneState extends State<DropTargetZone> {
   @override
   Widget build(BuildContext context) {
     return DragTarget<String>(
-      onAccept: (data) {
-        setState(() => acceptedData = data);
-        widget.onAccept(data);
+      onAcceptWithDetails: (details) {
+        setState(() => acceptedData = details.data);
+        widget.onAccept(details.data);
       },
       builder: (context, candidateData, rejectedData) {
         return Container(
           height: 100,
           width: 200,
           decoration: BoxDecoration(
-            border: Border.all(color: candidateData.isNotEmpty ? Colors.green : Colors.blue),
+            border: Border.all(
+              color: candidateData.isNotEmpty ? Colors.green : Colors.blue,
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(
-            child: Text(acceptedData ?? "Solte aqui"),
-          ),
+          child: Center(child: Text(acceptedData ?? "Solte aqui")),
         );
       },
     );

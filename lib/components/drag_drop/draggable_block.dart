@@ -14,7 +14,10 @@ class DraggableBlock extends StatelessWidget {
         color: Colors.transparent,
         child: _buildBox(color, label.toUpperCase()),
       ),
-      childWhenDragging: Opacity(opacity: 0.3, child: _buildBox(Colors.grey, label)),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: _buildBox(Colors.grey, label),
+      ),
       child: _buildBox(color, label),
     );
   }
@@ -27,7 +30,13 @@ class DraggableBlock extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }

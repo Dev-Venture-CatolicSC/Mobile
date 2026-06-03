@@ -108,7 +108,7 @@ abstract class AppLightTheme {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
       side: BorderSide(
-        color: AppThemeTokens.brandDark.withOpacity(0.25),
+        color: AppThemeTokens.brandDark.withValues(alpha: 0.25),
         width: 1,
       ),
     ),

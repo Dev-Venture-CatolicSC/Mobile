@@ -31,7 +31,7 @@ class ButtonComponent extends StatelessWidget {
           disabledBackgroundColor: colorScheme.surfaceContainerHighest,
           disabledForegroundColor: colorScheme.onSurfaceVariant,
           elevation: 2,
-          shadowColor: colorScheme.primary.withOpacity(0.35),
+          shadowColor: colorScheme.primary.withValues(alpha: 0.35),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
