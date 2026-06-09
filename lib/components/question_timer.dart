@@ -48,21 +48,18 @@ class QuestionTimerState extends State<QuestionTimer> {
 
   @override
   void dispose() {
-    // É obrigatório cancelar o timer quando sair da tela para não gastar memória
     _timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Formata o tempo para exibir no formato MM:SS
     String minutes = (_timeLeft ~/ 60).toString().padLeft(2, '0');
     String seconds = (_timeLeft % 60).toString().padLeft(2, '0');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        // Muda a cor para vermelho se faltar 5 segundos ou menos
         color: _timeLeft <= 5 ? Colors.redAccent : Colors.blueAccent,
         borderRadius: BorderRadius.circular(20),
       ),

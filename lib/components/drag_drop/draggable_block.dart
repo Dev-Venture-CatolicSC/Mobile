@@ -40,3 +40,8 @@ class DraggableBlock extends StatelessWidget {
     );
   }
 }
+
+// git add .
+// git commit -m "feat: cria componentes de drag and drop para atividades"
+// git push -u origin feat/components
+// git pull origin feat/components
