@@ -3,6 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// Fonte da verdade da sessão: emite o usuário a cada login/logout
+  /// ou quando a sessão expira/é revogada.
+  Stream<User?> get mudancasDeAutenticacao => _auth.authStateChanges();
+
+  /// Usuário autenticado no momento (null se deslogado).
+  User? get usuarioAtual => _auth.currentUser;
+
   // Sua função de Login
   Future<User?> fazerLogin(String email, String password) async {
     try {
@@ -42,6 +49,15 @@ class AuthService {
       throw Exception(_tratarErroFirebase(e.code));
     } catch (e) {
       throw Exception("Erro interno. Tente novamente.");
+    }
+  }
+
+  /// Encerra a sessão atual no Firebase.
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      throw Exception("Erro ao sair. Tente novamente.");
     }
   }
 
