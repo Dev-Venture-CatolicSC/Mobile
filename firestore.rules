@@ -1,0 +1,222 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isCurrentUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function sensitiveFields() {
+      return ['points', 'level', 'role'];
+    }
+
+    function userImmutableFields() {
+      return ['id', 'points', 'level', 'role'];
+    }
+
+    function ownsExistingAlunoData() {
+      return isSignedIn() && resource.data.alunoId == request.auth.uid;
+    }
+
+    function ownsRequestedAlunoData() {
+      return isSignedIn() && request.resource.data.alunoId == request.auth.uid;
+    }
+
+    function doesNotTouchSensitiveFields() {
+      return !request.resource.data.diff(resource.data)
+        .affectedKeys()
+        .hasAny(sensitiveFields());
+    }
+
+    function createsOwnAlunoDocument() {
+      return ownsRequestedAlunoData()
+        && !request.resource.data.keys().hasAny(sensitiveFields());
+    }
+
+    function updatesOwnAlunoDocument() {
+      return ownsExistingAlunoData()
+        && ownsRequestedAlunoData()
+        && doesNotTouchSensitiveFields();
+    }
+
+    function userCreateIsValid(userId) {
+      return isCurrentUser(userId)
+        && request.resource.data.keys().hasOnly([
+          'id',
+          'nome',
+          'email',
+          'criadoEm',
+          'level',
+          'points',
+          'role'
+        ])
+        && request.resource.data.keys().hasAll([
+          'id',
+          'nome',
+          'email',
+          'criadoEm',
+          'level',
+          'points',
+          'role'
+        ])
+        && request.resource.data.id == userId
+        && request.resource.data.points == 0
+        && request.resource.data.level == 'junior'
+        && request.resource.data.role == 'student';
+    }
+
+    function userUpdateIsValid(userId) {
+      return isCurrentUser(userId)
+        && resource.data.id == userId
+        && request.resource.data.id == userId
+        && request.resource.data.keys().hasOnly([
+          'id',
+          'nome',
+          'email',
+          'criadoEm',
+          'level',
+          'points',
+          'role'
+        ])
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasAny(userImmutableFields());
+    }
+
+    function presenceCreateIsValid() {
+      return ownsRequestedAlunoData()
+        && request.resource.data.keys().hasOnly([
+          'alunoId',
+          'alunoNome',
+          'aulaId',
+          'aulaCode',
+          'dataRegistro'
+        ])
+        && request.resource.data.keys().hasAll([
+          'alunoId',
+          'alunoNome',
+          'aulaId',
+          'aulaCode',
+          'dataRegistro'
+        ])
+        && request.resource.data.alunoId is string
+        && request.resource.data.alunoNome is string
+        && request.resource.data.aulaId is string
+        && request.resource.data.aulaCode is string
+        && request.resource.data.dataRegistro == request.time;
+    }
+
+    function senhaPorAlunoWriteIsValid(alunoId) {
+      return isCurrentUser(alunoId)
+        && request.resource.data.keys().hasOnly([
+          'senha',
+          'expiresAt',
+          'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'senha',
+          'expiresAt',
+          'updatedAt'
+        ])
+        && request.resource.data.senha is string
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    function senhaUnicaCreateIsValid(aulaId, senha) {
+      return isSignedIn()
+        && request.resource.data.keys().hasOnly([
+          'senha',
+          'aulaId',
+          'alunoId',
+          'expiresAt',
+          'usedBy',
+          'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'senha',
+          'aulaId',
+          'alunoId',
+          'expiresAt',
+          'usedBy',
+          'createdAt'
+        ])
+        && request.resource.data.senha == senha
+        && request.resource.data.aulaId == aulaId
+        && request.resource.data.alunoId == request.auth.uid
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.usedBy == ''
+        && request.resource.data.createdAt == request.time;
+    }
+
+    function senhaUnicaUpdateIsValid() {
+      return ownsExistingAlunoData()
+        && ownsRequestedAlunoData()
+        && resource.data.usedBy == ''
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(['usedBy', 'usedAt'])
+        && request.resource.data.usedBy == request.auth.uid
+        && request.resource.data.usedAt == request.time;
+    }
+
+    match /users/{userId} {
+      allow read: if isCurrentUser(userId);
+      allow create: if userCreateIsValid(userId);
+      allow update: if userUpdateIsValid(userId);
+      allow delete: if false;
+    }
+
+    match /answers/{answerId} {
+      allow read: if ownsExistingAlunoData();
+      allow create: if createsOwnAlunoDocument();
+      allow update: if updatesOwnAlunoDocument();
+      allow delete: if false;
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if ownsExistingAlunoData();
+      allow create: if createsOwnAlunoDocument();
+      allow update: if updatesOwnAlunoDocument();
+      allow delete: if false;
+    }
+
+    match /presences/{presenceId} {
+      allow read: if ownsExistingAlunoData();
+      allow create: if presenceCreateIsValid();
+      allow update, delete: if false;
+    }
+
+    match /aulas/{aulaId} {
+      allow read, write: if false;
+
+      match /senhasPorAluno/{alunoId} {
+        allow read: if isCurrentUser(alunoId);
+        allow create, update: if senhaPorAlunoWriteIsValid(alunoId);
+        allow delete: if false;
+      }
+
+      match /senhasUnicas/{senha} {
+        allow get: if isSignedIn()
+          && (
+            !exists(/databases/$(database)/documents/aulas/$(aulaId)/senhasUnicas/$(senha))
+            || resource.data.alunoId == request.auth.uid
+          );
+        allow list: if false;
+        allow create: if senhaUnicaCreateIsValid(aulaId, senha);
+        allow update: if senhaUnicaUpdateIsValid();
+        allow delete: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
