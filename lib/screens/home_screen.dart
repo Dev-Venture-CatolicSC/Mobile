@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 border: Border.all(color: theme.colorScheme.outline, width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: theme.shadowColor.withValues(alpha: 0.2),
+                    color: theme.shadowColor.withOpacity(0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),

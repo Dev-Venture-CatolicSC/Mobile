@@ -115,7 +115,7 @@ abstract class AppDarkTheme {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
       side: BorderSide(
-        color: AppThemeTokens.syntaxKeyword.withValues(alpha: 0.25),
+        color: AppThemeTokens.syntaxKeyword.withOpacity(0.25),
         width: 1,
       ),
     ),
@@ -182,14 +182,14 @@ abstract class AppDarkTheme {
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(
-        color: AppThemeTokens.syntaxKeyword.withValues(alpha: 0.4),
+        color: AppThemeTokens.syntaxKeyword.withOpacity(0.4),
         width: 1.5,
       ),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(
-        color: AppThemeTokens.syntaxError.withValues(alpha: 0.4),
+        color: AppThemeTokens.syntaxError.withOpacity(0.4),
         width: 1,
       ),
     ),

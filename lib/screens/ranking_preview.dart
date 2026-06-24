@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RankingScreen extends StatelessWidget {
-  const RankingScreen({super.key});
+  const RankingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
