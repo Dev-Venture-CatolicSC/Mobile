@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551750097674",
+    "project_id": "devventure-441c5",
+    "storage_bucket": "devventure-441c5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551750097674:android:49ca9ace93024aa29278f3",
+        "android_client_info": {
+          "package_name": "sc.catolica.dev_venture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-XN0LSADQUAFzK5cKgQg3zcx_uOhXSno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
