@@ -23,14 +23,18 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
 
   void _handleOnFormSubmit() {
     if (_formKey.currentState!.validate()) {
-      print("Valor do Textfield custom: ${_customTextFieldController.text}");
-      print("Valor do inputText custom: ${_customInputTextController.text}");
+      debugPrint(
+        "Valor do Textfield custom: ${_customTextFieldController.text}",
+      );
+      debugPrint(
+        "Valor do inputText custom: ${_customInputTextController.text}",
+      );
     }
   }
 
   void _handleOnMultiSelectChange(List<String> selections) {
     for (String str in selections) {
-      print("Selected: $str");
+      debugPrint("Selected: $str");
     }
   }
 
@@ -40,9 +44,7 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
   void _onAnswered(bool isCorrect) {
     setState(() {
       _attempts++;
-      if (isCorrect) {
-        _score++;
-      }
+      if (isCorrect) _score++;
     });
   }
 
@@ -75,12 +77,12 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Typography', style: theme.textTheme.titleLarge),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Headline: ${theme.textTheme.headlineSmall?.fontSize ?? ''}',
                 style: theme.textTheme.headlineSmall,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               Row(
                 children: [
@@ -88,23 +90,23 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                     onPressed: _handleOnFormSubmit,
                     child: const Text('Elevated'),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: () {},
                     child: const Text('Outlined'),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   TextButton(onPressed: () {}, child: const Text('Text')),
                 ],
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       ListTile(
                         leading: Icon(Icons.info),
                         title: Text('Card Title'),
@@ -117,38 +119,37 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     const Text('Form inputs'),
-                    SizedBox(height: 8),
-                    TextField(
-                      decoration: const InputDecoration(
+                    const SizedBox(height: 8),
+                    const TextField(
+                      decoration: InputDecoration(
                         labelText: 'TextField',
                         hintText: 'Placeholder',
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     CustomTextField(
                       hintText: "Custom Text Field",
                       labelText: "Custom Header",
                       controller: _customTextFieldController,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     CustomInputText(
                       label: "Custom Input Text",
                       controller: _customInputTextController,
                       hintText: "This is hint Text",
                       isPassword: true,
                       validator: (str) {
-                        print("Str: $str");
+                        debugPrint("Str: $str");
                         return "Que retorno é esse";
                       },
                     ),
-                    SizedBox(height: 12),
-                    //Exemplo de uso de componente próprio
+                    const SizedBox(height: 12),
                     VentureTimer(
                       initialSeconds: 20,
                       onFinished: () {
@@ -165,9 +166,9 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               MultiSelection(
-                labels: [
+                labels: const [
                   "Item 1",
                   "Item 2",
                   "Item 3",
@@ -181,13 +182,13 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 onChange: _handleOnMultiSelectChange,
               ),
               SelectionUnica(
-                options: ["opcção 1", "opcção 2", "opcção 3"],
+                options: const ["opcção 1", "opcção 2", "opcção 3"],
                 onChanged: (value) {},
               ),
 
               DraggableBlock(
                 label: "Bloco de Teste 1",
-                color: Color(0xFF6200EE),
+                color: const Color(0xFF6200EE),
               ),
               DropTargetZone(
                 onAccept: (data) {
@@ -196,43 +197,36 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                   );
                 },
               ),
-              SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                MetricTile(
-                                  label: 'Acertos',
-                                  value: _score.toString(),
-                                  accent: theme.colorScheme.primary,
-                                ),
-                                MetricTile(
-                                  label: 'Tentativas',
-                                  value: _attempts.toString(),
-                                  accent: theme.colorScheme.secondary,
-                                ),
-                              ],
-                            ),
-                          ),
+
+              // Métricas e questão V/F — removido SafeArea aninhado desnecessário
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        MetricTile(
+                          label: 'Acertos',
+                          value: _score.toString(),
+                          accent: theme.colorScheme.primary,
                         ),
-                      ),
-                      TrueFalseQuestion(
-                        question: 'Flutter é um framework criado pelo Google?',
-                        correctAnswer: true,
-                        onAnswered: _onAnswered,
-                      ),
-                    ],
+                        MetricTile(
+                          label: 'Tentativas',
+                          value: _attempts.toString(),
+                          accent: theme.colorScheme.secondary,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ),
+              TrueFalseQuestion(
+                question: 'Flutter é um framework criado pelo Google?',
+                correctAnswer: true,
+                onAnswered: _onAnswered,
               ),
 
               SwitchListTile(
@@ -259,7 +253,7 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ),
               ),
 
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   const Text('Slider:'),
@@ -276,7 +270,7 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ],
               ),
 
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -296,9 +290,9 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ],
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               const Text('Lists & Tiles'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ListTile(
                 leading: const Icon(Icons.person),
                 title: const Text('List item'),
@@ -308,16 +302,16 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               const Text('Misc'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   FloatingActionButton.small(
                     onPressed: () {},
                     child: const Icon(Icons.edit),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   const Chip(
                     label: Text('Badge-like'),
                     avatar: CircleAvatar(child: Text('3')),
@@ -325,7 +319,7 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                 ],
               ),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               DefaultTabController(
                 length: 2,
@@ -359,6 +353,8 @@ class _ThemeDemoPageState extends State<ThemeDemoPage> {
                   ],
                 ),
               ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),

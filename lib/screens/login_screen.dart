@@ -1,96 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dev_venture/components/button_component.dart';
-import 'package:dev_venture/screens/home_screen.dart';
-import 'package:dev_venture/screens/login_screen.dart';
 import 'package:dev_venture/components/custom_dialog.dart';
 import 'package:dev_venture/providers/auth_provider.dart';
+import 'package:dev_venture/screens/home_screen.dart';
+import 'package:dev_venture/screens/cadastro_screen.dart';
 
-class CadastroScreen extends StatefulWidget {
-  const CadastroScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<CadastroScreen> createState() => _CadastroScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _CadastroScreenState extends State<CadastroScreen> {
-  int clickCount = 0;
-  bool isDevModeActive = false;
-  bool _senhaVisivel = false;
-  bool _confirmarSenhaVisivel = false;
-
-  final _nomeController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
-  final _confirmarSenhaController = TextEditingController();
+  bool _senhaVisivel = false;
 
   @override
   void dispose() {
-    _nomeController.dispose();
     _emailController.dispose();
     _senhaController.dispose();
-    _confirmarSenhaController.dispose();
     super.dispose();
   }
 
-  void handleDevModeClick() {
-    if (isDevModeActive) {
-      Navigator.pushNamed(context, '/theme-demo');
-      return;
-    }
-    setState(() {
-      clickCount++;
-      if (clickCount >= 6 && clickCount < 10) {
-        final remaining = 10 - clickCount;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Você está a $remaining passos de se tornar um desenvolvedor.',
-            ),
-            duration: const Duration(milliseconds: 500),
-          ),
-        );
-      }
-      if (clickCount >= 10) {
-        isDevModeActive = true;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Modo desenvolvedor ativado! 🎉'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    });
-  }
-
-  Future<void> _cadastrar() async {
-    final nome = _nomeController.text.trim();
-    final email = _emailController.text.trim();
-    final senha = _senhaController.text;
-    final confirmar = _confirmarSenhaController.text;
-
-    if (nome.isEmpty || email.isEmpty || senha.isEmpty || confirmar.isEmpty) {
+  Future<void> _entrar() async {
+    if (_emailController.text.trim().isEmpty ||
+        _senhaController.text.trim().isEmpty) {
       CustomDialog.show(
         context: context,
         title: 'Campos obrigatórios',
-        message: 'Preencha todos os campos para continuar.',
-        type: DialogType.warning,
-      );
-      return;
-    }
-
-    if (senha != confirmar) {
-      CustomDialog.show(
-        context: context,
-        title: 'Senhas não conferem',
-        message: 'A senha e a confirmação de senha precisam ser iguais.',
+        message: 'Preencha o e-mail e a senha para continuar.',
         type: DialogType.warning,
       );
       return;
     }
 
     final authProvider = context.read<AuthProvider>();
-    final sucesso = await authProvider.cadastrar(nome, email, senha);
+    final sucesso = await authProvider.login(
+      _emailController.text,
+      _senhaController.text,
+    );
 
     if (!mounted) return;
 
@@ -105,7 +56,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
     } else {
       CustomDialog.show(
         context: context,
-        title: 'Não foi possível cadastrar',
+        title: 'Não foi possível entrar',
         message: authProvider.erro ?? 'Verifique seus dados e tente novamente.',
         type: DialogType.warning,
       );
@@ -119,6 +70,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      // Sobe o layout quando o teclado aparece
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
@@ -130,27 +82,23 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: handleDevModeClick,
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image(
-                          image: const AssetImage('assets/base_icon.png'),
-                          height: constraints.maxWidth > 400 ? 80 : 60,
-                          width: constraints.maxWidth > 400 ? 80 : 60,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image(
+                        image: const AssetImage('assets/base_icon.png'),
+                        height: constraints.maxWidth > 400 ? 80 : 60,
+                        width: constraints.maxWidth > 400 ? 80 : 60,
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        "Dev Venture",
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontSize: constraints.maxWidth > 400 ? 36 : 28,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 16),
-                        Text(
-                          "Dev Venture",
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontSize: constraints.maxWidth > 400 ? 36 : 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 32),
                   Center(
@@ -174,41 +122,26 @@ class _CadastroScreenState extends State<CadastroScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              isDevModeActive
-                                  ? Icons.developer_mode
-                                  : Icons.person_add_alt_1_rounded,
+                              Icons.login_rounded,
                               size: 56,
                               color: theme.colorScheme.primary,
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Criar conta',
+                              'Entrar',
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Preencha seus dados para acessar o Dev Venture',
+                              'Acesse sua conta do Dev Venture',
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                             const SizedBox(height: 28),
-                            TextField(
-                              controller: _nomeController,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                labelText: 'Nome completo',
-                                prefixIcon: const Icon(Icons.person_outlined),
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 14),
                             TextField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
@@ -222,11 +155,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             TextField(
                               controller: _senhaController,
                               obscureText: !_senhaVisivel,
-                              textInputAction: TextInputAction.next,
+                              textInputAction: TextInputAction.done,
+                              onSubmitted: (_) => _entrar(),
                               decoration: InputDecoration(
                                 labelText: 'Senha',
                                 prefixIcon: const Icon(Icons.lock_outlined),
@@ -246,34 +180,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 14),
-                            TextField(
-                              controller: _confirmarSenhaController,
-                              obscureText: !_confirmarSenhaVisivel,
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) => _cadastrar(),
-                              decoration: InputDecoration(
-                                labelText: 'Confirmar senha',
-                                prefixIcon: const Icon(
-                                  Icons.lock_outline_rounded,
-                                ),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _confirmarSenhaVisivel
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                  ),
-                                  onPressed: () => setState(
-                                    () => _confirmarSenhaVisivel =
-                                        !_confirmarSenhaVisivel,
-                                  ),
-                                ),
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 24),
                             SizedBox(
                               width: double.infinity,
@@ -282,9 +188,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
                                       child: CircularProgressIndicator(),
                                     )
                                   : ButtonComponent(
-                                      text: 'Cadastrar',
+                                      text: 'Entrar',
                                       icon: Icons.arrow_forward,
-                                      onPressed: _cadastrar,
+                                      onPressed: _entrar,
                                     ),
                             ),
                             const SizedBox(height: 12),
@@ -292,11 +198,11 @@ class _CadastroScreenState extends State<CadastroScreen> {
                               onPressed: () => Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const LoginScreen(),
+                                  builder: (context) => const CadastroScreen(),
                                 ),
                               ),
                               child: Text(
-                                'Já tenho conta',
+                                'Ainda não tenho conta',
                                 style: TextStyle(
                                   color: theme.colorScheme.primary,
                                 ),

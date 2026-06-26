@@ -46,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Carrega os dados reais do Firestore assim que a tela monta.
     WidgetsBinding.instance.addPostFrameCallback((_) => _carregarAtividades());
   }
 
@@ -63,15 +62,42 @@ class _HomeScreenState extends State<HomeScreen> {
     return '$dia/$mes/${data.year}';
   }
 
+  // Título de seção padronizado
+  Widget _sectionTitle(String text, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 20,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     IconData iconTheme;
     if (widget.themeMode == ThemeMode.system) {
-      iconTheme = Icons.brightness_auto;
+      iconTheme = Icons.brightness_auto_rounded;
     } else if (widget.themeMode == ThemeMode.light) {
-      iconTheme = Icons.wb_sunny;
+      iconTheme = Icons.wb_sunny_rounded;
     } else {
       iconTheme = Icons.nightlight_round;
     }
@@ -81,9 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Dev Venture"),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline_rounded),
             tooltip: 'Sobre o app',
             onPressed: () => CustomDialog.show(
               context: context,
@@ -104,138 +131,26 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async => _carregarAtividades(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // CARD DO PERFIL
-              GestureDetector(
-                onTap: () => CustomDialog.show(
-                  context: context,
-                  title: 'Nome Aluno',
-                  message:
-                      'Nível 14 - ARQUIMAGO\nPlano: Pleno\n\nEm breve você poderá editar seu perfil.',
-                  type: DialogType.info,
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: theme.colorScheme.outline,
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.shadowColor.withValues(alpha: 0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.colorScheme.primary,
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "NA",
-                            style: TextStyle(
-                              color: theme.colorScheme.primary,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Nome Aluno",
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Nível 14 - ARQUIMAGO",
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => CustomDialog.show(
-                          context: context,
-                          title: 'Plano Pleno',
-                          message:
-                              'Você está no plano Pleno. Acesso completo a todas as trilhas e atividades.',
-                          type: DialogType.success,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "Pleno",
-                            style: TextStyle(
-                              color: theme.colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildPerfilCard(theme),
 
-              const SizedBox(height: 30),
-
-              // ATIVIDADE DO DIA (dado real do Firestore)
-              Text(
-                "ATIVIDADE DO DIA",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 28),
+              _sectionTitle('ATIVIDADE DO DIA', theme),
               _buildAtividadeDoDia(theme),
 
-              const SizedBox(height: 30),
-              Text(
-                "DASHBOARD DE TRILHAS",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const SizedBox(height: 28),
+              _sectionTitle('DASHBOARD DE TRILHAS', theme),
               Text(
                 "Continue sua jornada acadêmica...",
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 15),
-
-              // CARDS DAS TRILHAS
+              const SizedBox(height: 12),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -251,19 +166,102 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
 
-              const SizedBox(height: 20),
-
-              // HISTÓRICO DE PONTUAÇÃO (dado real do Firestore)
-              Text(
-                "HISTÓRICO DE PONTUAÇÃO",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 28),
+              _sectionTitle('HISTÓRICO DE PONTUAÇÃO', theme),
               _buildHistoricoPontuacao(theme),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPerfilCard(ThemeData theme) {
+    return GestureDetector(
+      onTap: () => CustomDialog.show(
+        context: context,
+        title: 'Nome Aluno',
+        message:
+            'Nível 14 - ARQUIMAGO\nPlano: Pleno\n\nEm breve você poderá editar seu perfil.',
+        type: DialogType.info,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: theme.colorScheme.outlineVariant, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: theme.shadowColor.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: theme.colorScheme.primaryContainer,
+                border: Border.all(color: theme.colorScheme.primary, width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  "NA",
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Nome Aluno",
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Nível 14 — ARQUIMAGO",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () => CustomDialog.show(
+                context: context,
+                title: 'Plano Pleno',
+                message:
+                    'Você está no plano Pleno. Acesso completo a todas as trilhas e atividades.',
+                type: DialogType.success,
+              ),
+              child: Chip(
+                label: const Text('Pleno'),
+                labelStyle: TextStyle(
+                  color: theme.colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+                backgroundColor: theme.colorScheme.primaryContainer,
+                side: BorderSide.none,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -282,6 +280,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (provider.erro != null) {
           return Card(
             color: theme.colorScheme.errorContainer,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
@@ -296,23 +297,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (atividade == null) {
           return Card(
-            elevation: 2,
+            elevation: 0,
+            color: theme.colorScheme.surfaceContainerLow,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
                   Icon(
-                    Icons.event_available,
+                    Icons.event_available_rounded,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       "Nenhuma atividade marcada para hoje.",
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -322,22 +326,38 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return Card(
-          elevation: 3,
+          elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
           ),
           clipBehavior: Clip.antiAlias,
           child: ListTile(
-            leading: Icon(
-              atividade.concluida ? Icons.check_circle : Icons.bolt,
-              color: atividade.concluida
-                  ? Colors.green
-                  : theme.colorScheme.primary,
-              size: 36,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            leading: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: atividade.concluida
+                    ? Colors.green.withValues(alpha: 0.12)
+                    : theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                atividade.concluida
+                    ? Icons.check_circle_rounded
+                    : Icons.bolt_rounded,
+                color: atividade.concluida
+                    ? Colors.green
+                    : theme.colorScheme.primary,
+                size: 26,
+              ),
             ),
             title: Text(
               atividade.titulo,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -345,12 +365,21 @@ class _HomeScreenState extends State<HomeScreen> {
               atividade.descricao,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall,
             ),
-            trailing: Text(
-              "+${atividade.pontos} pts",
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                "+${atividade.pontos} pts",
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
@@ -370,36 +399,88 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         if (provider.historico.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Text(
-              "Você ainda não concluiu nenhuma atividade.",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          return Card(
+            elevation: 0,
+            color: theme.colorScheme.surfaceContainerLow,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.star_border_rounded,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Você ainda não concluiu nenhuma atividade.",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
         }
 
-        return Column(
-          children: provider.historico.map((atividade) {
-            return ListTile(
-              leading: const Icon(Icons.star, color: Colors.amber),
-              title: Text(atividade.titulo),
-              subtitle: Text(_formatarData(atividade.data)),
-              trailing: Text(
-                "+${atividade.pontosGanhos} pts",
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              onTap: () => CustomDialog.show(
-                context: context,
-                title: atividade.titulo,
-                message:
-                    '${atividade.descricao}\n\nPontos ganhos: ${atividade.pontosGanhos}',
-                type: DialogType.success,
-              ),
-            );
-          }).toList(),
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: provider.historico.map((atividade) {
+              final isLast = atividade == provider.historico.last;
+              return Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 28,
+                    ),
+                    title: Text(
+                      atividade.titulo,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _formatarData(atividade.data),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    trailing: Text(
+                      "+${atividade.pontosGanhos} pts",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    onTap: () => CustomDialog.show(
+                      context: context,
+                      title: atividade.titulo,
+                      message:
+                          '${atividade.descricao}\n\nPontos ganhos: ${atividade.pontosGanhos}',
+                      type: DialogType.success,
+                    ),
+                  ),
+                  if (!isLast)
+                    Divider(
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                ],
+              );
+            }).toList(),
+          ),
         );
       },
     );
@@ -414,17 +495,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final int percent = (progress * 100).round();
 
     return Card(
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ActivitiesScreen()),
-          );
-        },
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ActivitiesScreen()),
+        ),
         onLongPress: () => CustomDialog.show(
           context: context,
           title: title,
@@ -436,36 +515,66 @@ class _HomeScreenState extends State<HomeScreen> {
               : DialogType.warning,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: Row(
             children: [
-              ListTile(
-                leading: Icon(
-                  Icons.code,
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.code_rounded,
                   color: theme.colorScheme.primary,
-                  size: 40,
-                ),
-                title: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  size: 26,
                 ),
               ),
-              const SizedBox(height: 10),
-              LinearProgressIndicator(
-                value: progress,
-                minHeight: 8,
-                color: theme.colorScheme.primary,
-                backgroundColor: theme.colorScheme.primaryContainer,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          title,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '$percent%',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 6,
+                        color: theme.colorScheme.primary,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
