@@ -1,52 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class RankingScreen extends StatefulWidget {
-  final VoidCallback onThemeChanged;
-  final ThemeMode themeMode;
+class RankingScreen extends StatelessWidget {
+  const RankingScreen({super.key});
 
-  const RankingScreen({
-    super.key,
-    required this.onThemeChanged,
-    required this.themeMode,
-  });
-
-  @override
-  State<RankingScreen> createState() => _RankingScreenState();
-}
-
-class _RankingScreenState extends State<RankingScreen> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    IconData iconTheme;
-    if (widget.themeMode == ThemeMode.system) {
-      iconTheme = Icons.brightness_auto;
-    } else if (widget.themeMode == ThemeMode.light) {
-      iconTheme = Icons.wb_sunny;
-    } else {
-      iconTheme = Icons.nightlight_round;
-    }
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ranking Global'),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        actions: [
-          IconButton(
-            icon: Icon(iconTheme),
-            tooltip: 'Tema: ${widget.themeMode.name}',
-            onPressed: widget.onThemeChanged,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Ranking Global'), centerTitle: true),
 
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('usuarios')
-            .orderBy('pontuacao', descending: true)
+            .collection('students')
+            .orderBy('points', descending: true)
             .snapshots(),
 
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -62,7 +28,7 @@ class _RankingScreenState extends State<RankingScreen> {
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text('Nenhum jogador encontrado no ranking.'),
+              child: Text('Nenhum aluno encontrado no ranking.'),
             );
           }
 
@@ -74,23 +40,33 @@ class _RankingScreenState extends State<RankingScreen> {
               Map<String, dynamic> data =
                   documentos[index].data() as Map<String, dynamic>;
 
-              String nomeJogador = data['nome'] ?? 'Jogador Anônimo';
-              int pontuacao = data['pontuacao'] ?? 0;
+              String nomeJogador = data['nome'] ?? 'Aluno Anônimo';
+              int pontuacao = data['points'] ?? 0;
+              int nivel = data['level'] ?? 1;
 
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                elevation: 2,
                 child: ListTile(
-                  leading: CircleAvatar(child: Text('${index + 1}º')),
+                  leading: CircleAvatar(
+                    backgroundColor: _getMedalColor(index),
+                    foregroundColor: Colors.white,
+                    child: Text(
+                      '${index + 1}º',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   title: Text(
                     nomeJogador,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text('Nível $nivel'),
                   trailing: Text(
                     '$pontuacao pts',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
-                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
+                      color: Colors.green,
                     ),
                   ),
                 ),
@@ -100,5 +76,12 @@ class _RankingScreenState extends State<RankingScreen> {
         },
       ),
     );
+  }
+
+  Color _getMedalColor(int index) {
+    if (index == 0) return Colors.amber;
+    if (index == 1) return Colors.grey.shade400;
+    if (index == 2) return Colors.brown.shade400;
+    return Colors.blueAccent;
   }
 }

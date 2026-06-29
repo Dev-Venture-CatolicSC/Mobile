@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
+import 'drag_item.dart';
 
-class DropTargetZone extends StatefulWidget {
-  final Function(String) onAccept;
+class DropTargetZone extends StatelessWidget {
+  final String title;
+  final List<DragItem> items;
+  final Function(DragTargetDetails<DragItem>) onAccept;
 
-  const DropTargetZone({super.key, required this.onAccept});
-
-  @override
-  State<DropTargetZone> createState() => _DropTargetZoneState();
-}
-
-class _DropTargetZoneState extends State<DropTargetZone> {
-  String? acceptedData;
+  const DropTargetZone({
+    super.key,
+    required this.title,
+    required this.items,
+    required this.onAccept,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return DragTarget<String>(
-      onAccept: (data) {
-        setState(() => acceptedData = data);
-        widget.onAccept(data);
-      },
+    return DragTarget<DragItem>(
+      onAcceptWithDetails: (details) => onAccept(details),
       builder: (context, candidateData, rejectedData) {
         return Container(
-          height: 100,
-          width: 200,
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            border: Border.all(color: candidateData.isNotEmpty ? Colors.green : Colors.blue),
+            color: candidateData.isNotEmpty
+                ? Colors.blue.withValues(alpha: 0.2)
+                : Colors.transparent,
+            border: Border.all(
+              color: candidateData.isNotEmpty ? Colors.blue : Colors.grey,
+            ),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(
-            child: Text(acceptedData ?? "Solte aqui"),
+          child: Column(
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ...items.map((i) => Text(i.label)).toList(),
+            ],
           ),
         );
       },

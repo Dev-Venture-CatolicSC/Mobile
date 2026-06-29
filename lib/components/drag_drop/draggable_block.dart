@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'drag_item.dart';
 
 class DraggableBlock extends StatelessWidget {
-  final String label;
+  final DragItem item;
   final Color color;
 
-  const DraggableBlock({super.key, required this.label, required this.color});
+  const DraggableBlock({super.key, required this.item, required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return Draggable<String>(
-      data: label,
+    return Draggable<DragItem>(
+      data: item,
       feedback: Material(
         color: Colors.transparent,
-        child: _buildBox(color, label.toUpperCase()),
+        child: _buildBox(color, item.label.toUpperCase()),
       ),
-      childWhenDragging: Opacity(opacity: 0.3, child: _buildBox(Colors.grey, label)),
-      child: _buildBox(color, label),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: _buildBox(Colors.grey, item.label),
+      ),
+      child: _buildBox(color, item.label),
     );
   }
 
@@ -27,7 +31,13 @@ class DraggableBlock extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
