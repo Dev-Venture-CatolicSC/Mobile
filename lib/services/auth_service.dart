@@ -1,7 +1,17 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../models/auth_flow_model.dart';
+
+class OtpRequiredException implements Exception {
+  final MultiFactorResolver resolver;
+
+  OtpRequiredException(this.resolver);
+}
+
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
 
   // Sua função de Login
   Future<User?> fazerLogin(String email, String password) async {
@@ -16,9 +26,65 @@ class AuthService {
       );
 
       return userCredential.user;
+    } on FirebaseAuthMultiFactorException catch (e) {
+      throw OtpRequiredException(e.resolver);
     } on FirebaseAuthException catch (e) {
       throw Exception(_tratarErroFirebase(e.code));
     } catch (e) {
+      throw Exception("Erro interno. Tente novamente.");
+    }
+  }
+
+  Future<OtpChallenge> enviarCodigoOtp(MultiFactorResolver resolver) {
+    final completer = Completer<OtpChallenge>();
+    final hint = resolver.hints.whereType<PhoneMultiFactorInfo>().isNotEmpty
+        ? resolver.hints.whereType<PhoneMultiFactorInfo>().first
+        : null;
+
+    if (hint == null) {
+      throw Exception('Não foi possível iniciar validação OTP.');
+    }
+
+    _auth.verifyPhoneNumber(
+      multiFactorSession: resolver.session,
+      multiFactorInfo: hint,
+      verificationCompleted: (_) {},
+      verificationFailed: (e) {
+        if (!completer.isCompleted) {
+          completer.completeError(Exception(_tratarErroFirebase(e.code)));
+        }
+      },
+      codeSent: (verificationId, resendToken) {
+        if (!completer.isCompleted) {
+          completer.complete(
+            OtpChallenge(
+              resolver: resolver,
+              verificationId: verificationId,
+              resendToken: resendToken,
+              phoneNumber: hint.phoneNumber,
+            ),
+          );
+        }
+      },
+      codeAutoRetrievalTimeout: (_) {},
+      timeout: const Duration(seconds: 60),
+    );
+
+    return completer.future;
+  }
+
+  Future<User?> validarOtp(OtpChallenge challenge, String otpCode) async {
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: challenge.verificationId,
+        smsCode: otpCode.trim(),
+      );
+      final assertion = PhoneMultiFactorGenerator.getAssertion(credential);
+      final userCredential = await challenge.resolver.resolveSignIn(assertion);
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_tratarErroFirebase(e.code));
+    } catch (_) {
       throw Exception("Erro interno. Tente novamente.");
     }
   }
@@ -52,6 +118,8 @@ class AuthService {
       case 'wrong-password':
       case 'invalid-credential': return 'E-mail ou senha incorretos.';
       case 'too-many-requests': return 'Muitas tentativas. Bloqueado temporariamente.';
+      case 'invalid-verification-code': return 'Código OTP inválido.';
+      case 'session-expired': return 'Código OTP expirado. Solicite um novo código.';
       case 'email-already-in-use': return 'Este e-mail já está cadastrado.';
       case 'weak-password': return 'A senha deve ter pelo menos 6 caracteres.';
       case 'operation-not-allowed': return 'Cadastro por e-mail desativado. Contate o suporte.';

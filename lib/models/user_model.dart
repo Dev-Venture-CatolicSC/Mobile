@@ -5,12 +5,14 @@ class UserModel {
   final String nome;
   final String email;
   final DateTime criadoEm;
+  final int pontos;
 
   UserModel({
     required this.id,
     required this.nome,
     required this.email,
     required this.criadoEm,
+    this.pontos = 0,
   });
 
   factory UserModel.fromFirebaseUser(User user) {
@@ -19,6 +21,7 @@ class UserModel {
       nome: user.displayName ?? '',
       email: user.email ?? '',
       criadoEm: user.metadata.creationTime ?? DateTime.now(),
+      pontos: 0,
     );
   }
 }

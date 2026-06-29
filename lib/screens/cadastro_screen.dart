@@ -201,7 +201,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     const SizedBox(height: 12),
 
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
 
                       child: Text(
                         'Já tenho conta',

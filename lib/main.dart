@@ -1,12 +1,25 @@
-import 'package:dev_venture/screens/home_screen.dart';
+import 'package:dev_venture/firebase_options.dart';
+import 'package:dev_venture/providers/atividade_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:dev_venture/screens/home_screen.dart';
 import 'package:dev_venture/theme/dark_theme.dart';
 import 'package:dev_venture/theme/light_theme.dart';
 import 'package:dev_venture/screens/theme_demo.dart';
 import 'package:dev_venture/screens/activities_screen.dart';
 import 'package:dev_venture/screens/cadastro_screen.dart';
+import 'package:dev_venture/screens/login_screen.dart';
+import 'package:dev_venture/screens/ranking_screen.dart';
+import 'package:dev_venture/utils/performance/frame_monitor.dart';
+import 'package:dev_venture/utils/performance/perf_navigator_observer.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FrameMonitor.instance.start();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(const MyApp());
 }
 
@@ -27,29 +40,41 @@ class _MyAppState extends State<MyApp> {
       } else if (_themeMode == ThemeMode.light) {
         _themeMode = ThemeMode.dark;
       } else {
-        _themeMode = ThemeMode.system; // Do dark, volta para o sistema
+        _themeMode = ThemeMode.system;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dev Venture',
-      theme: AppLightTheme.theme,
-      darkTheme: AppDarkTheme.theme,
-      themeMode: _themeMode,
+    return ChangeNotifierProvider(
+      create: (_) => AtividadeProvider(),
+      child: MaterialApp(
+        title: 'Dev Venture',
+        theme: AppLightTheme.theme,
+        darkTheme: AppDarkTheme.theme,
+        themeMode: _themeMode,
 
-      // TELA INICIAL
-      home: const CadastroScreen(),
+        // Mede o tempo de abertura de cada tela
+        navigatorObservers: [PerfNavigatorObserver()],
 
-      // ROTAS
-      routes: {
-        '/home': (context) =>
-            HomeScreen(onThemeChanged: _onThemeChange, themeMode: _themeMode),
-        '/activities': (context) => ActivitiesScreen(),
-        '/theme-demo': (context) => const ThemeDemoPage(),
-      },
+        // TELA INICIAL
+        home: const CadastroScreen(),
+
+        // ROTAS
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/cadastro': (context) => const CadastroScreen(),
+          '/home': (context) =>
+              HomeScreen(onThemeChanged: _onThemeChange, themeMode: _themeMode),
+          '/activities': (context) => ActivitiesScreen(),
+          '/ranking': (context) => RankingScreen(
+            onThemeChanged: _onThemeChange,
+            themeMode: _themeMode,
+          ),
+          '/theme-demo': (context) => const ThemeDemoPage(),
+        },
+      ),
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class ActivitiesScreen extends StatelessWidget {
   ActivitiesScreen({super.key});
 
-  // DATA BINDING
   final List<Map<String, dynamic>> activities = [
     {
       "title": "Implementar Login",
@@ -38,34 +37,37 @@ class ActivitiesScreen extends StatelessWidget {
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
-
         child: ListView.builder(
           itemCount: activities.length,
-
           itemBuilder: (context, index) {
             final activity = activities[index];
 
             return Card(
               elevation: 3,
               margin: const EdgeInsets.only(bottom: 12),
-
               child: ListTile(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Atividade '${activity["title"]}' selecionada.",
+                      ),
+                    ),
+                  );
+                },
                 leading: Icon(
                   activity["icon"],
                   color: activity["color"],
                   size: 32,
                 ),
-
                 title: Text(
                   activity["title"],
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
