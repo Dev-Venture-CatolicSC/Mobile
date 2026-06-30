@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dev_venture/theme/base_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Dark theme (UI-REF-2026-001)
 /// - canvas: near-neutral dark
@@ -10,6 +11,9 @@ abstract class AppDarkTheme {
     colorScheme: _colorScheme,
     scaffoldBackgroundColor: AppThemeTokens.neutral900,
     canvasColor: AppThemeTokens.neutral900,
+    textTheme: GoogleFonts.firaCodeTextTheme(
+      ThemeData(brightness: Brightness.dark).textTheme,
+    ),
     appBarTheme: _appBarTheme,
     cardTheme: _cardTheme,
     dialogTheme: _dialogTheme,
