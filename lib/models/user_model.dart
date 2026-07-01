@@ -24,4 +24,18 @@ class UserModel {
       pontos: 0,
     );
   }
+
+    Future<void> addPoints({required bool isRight}) async {
+    if (!isRight) return;
+    final userRef = FirebaseFirestore.instance.collection('users').doc(id);
+    try {
+      await userRef.update({
+        'pontos': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Erro ao atualizar pontos: $e');
+      rethrow;
+    }
+  }
+
 }
